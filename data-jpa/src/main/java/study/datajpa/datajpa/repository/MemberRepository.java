@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom{
     List<Member> findByUserNameAndAgeGreaterThan(String userName, int age); // Query method
 
     @Query("select m from Member m where m.userName = :userName and m.age = :age") // Query에 바로 넣기

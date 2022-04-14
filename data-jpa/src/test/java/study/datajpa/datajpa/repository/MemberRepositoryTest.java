@@ -144,7 +144,17 @@ public class MemberRepositoryTest {
         for (Member member : m1) {
             member.setUserName("1");
         }
+    }
 
+    @Test
+    public void CustomTest(){
+        memberRepository.save(new Member("박세헌1", 16));
+        memberRepository.save(new Member("박세헌2", 17));
+
+        List<Member> m = memberRepository.findMemberCustom();
+        for (Member member : m) {
+            System.out.println(member);
+        }
     }
 
 }
