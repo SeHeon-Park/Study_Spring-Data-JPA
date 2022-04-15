@@ -22,7 +22,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Query("select m from Member m where m.userName = :userName and m.age = :age") // Query에 바로 넣기
     List<Member> findUser(@Param("userName") String userName, @Param("age") int age);
 
-    @Query("select new study.datajpa.datajpa.dto.MemberDto(m.id, m.userName, t.name) " +  //Dto로 조회
+    @Query("select new study.datajpa.datajpa.dto.MemberDto(m.id, m.userName, t.teamName) " +  //Dto로 조회
             "from Member m join m.team t")
     List<MemberDto> findDto();
 
@@ -61,4 +61,14 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // 찾아보기, 가급적 쓰지 말길
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByUserName(String userName);
+
+    //projection
+    <T> List<T> findProjectionByUserName(String UserName, Class<T> type); // 제네릭으로 동적
+
+    //nativeQuery&projection
+    @Query(value = "SELECT m.member_id as id, m.username, t.name as teamName " +
+            "FROM member m left join team t",
+            countQuery = "SELECT count(*) from member",
+            nativeQuery = true)
+    Page<UserNameTeam> findNameTeamByUserName(Pageable pageable);
 }

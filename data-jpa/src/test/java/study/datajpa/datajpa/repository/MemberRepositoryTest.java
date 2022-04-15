@@ -1,6 +1,5 @@
 package study.datajpa.datajpa.repository;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,13 +14,11 @@ import study.datajpa.datajpa.entity.Team;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.validation.constraints.AssertFalse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -79,7 +76,7 @@ public class MemberRepositoryTest {
 
         Page<Member> page = memberRepository.findPageByAge(age, pageRequest);
 
-        Page<MemberDto> memberDto = page.map(o -> new MemberDto(o.getId(), o.getUserName(), o.getTeam().getName()));
+        Page<MemberDto> memberDto = page.map(o -> new MemberDto(o.getId(), o.getUserName(), o.getTeam().getTeamName()));
         // memberDto로 변환
 
         List<Member> content = page.getContent(); //조회된 데이터
@@ -123,7 +120,7 @@ public class MemberRepositoryTest {
         List<Member> result = memberRepository.findAll();
         for (Member member : result) {
             System.out.println(member);
-            System.out.println(member.getTeam().getName());
+            System.out.println(member.getTeam().getTeamName());
         }
     }
 
@@ -157,4 +154,37 @@ public class MemberRepositoryTest {
         }
     }
 
+    @Test
+    public void projectionTest(){
+        memberRepository.save(new Member("박세헌1", 16));
+        memberRepository.save(new Member("박세헌2", 17));
+
+        em.flush();
+        em.clear();
+
+        List<UserNameOnly> result = memberRepository.findProjectionByUserName("박세헌1", UserNameOnly.class);
+        for (UserNameOnly userNameOnly : result) {
+            System.out.println(userNameOnly.getUserName());
+        }
+    }
+
+    @Test
+    public void nativeProjectionTest(){
+        Team team1 = new Team("광교");
+        Team team2 = new Team("용인");
+        teamRepository.save(team1);
+        teamRepository.save(team2);
+
+        memberRepository.save(new Member("박세헌1", 16, team1));
+        memberRepository.save(new Member("박세헌2", 17, team2));
+
+        em.flush();
+        em.clear();
+
+        Page<UserNameTeam> result = memberRepository.findNameTeamByUserName(PageRequest.of(0, 10));
+        for (UserNameTeam m : result) {
+            System.out.println(m.getUserName());
+            System.out.println(m.getTeamName());
+        }
+    }
 }
